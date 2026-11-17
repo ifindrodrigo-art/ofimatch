@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     apple: "/icons/apple-touch-icon.png",
   },
   appleWebApp: { capable: true, title: "OfiMatch", statusBarStyle: "default" },
-  verification: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION } : undefined,
+  verification: { google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "JI0NC3XPPuGPMPFjiAJ6tv9TiZgnjUzIRBBUZY_17u4" },
 };
 
 export const viewport: Viewport = {
