@@ -131,4 +131,8 @@ export type Urgency = (typeof URGENCIAS)[number]["id"];
 
 export const COMMISSION = 0.1; // 10%, dentro del rango 8–12% del modelo de negocio
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://ofimatch.vercel.app").replace(/\/$/, "");
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_PROD_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://ofimatch-gilt.vercel.app"
+).replace(/\/$/, "");
