@@ -59,12 +59,18 @@ export default function AppShell() {
     };
   }, [backend, refreshProfile]);
 
+  const profileId = profile?.id;
   useEffect(() => {
-    if (!profile) return;
+    if (!profileId) return;
     refreshRequests();
     const t = setInterval(refreshRequests, 10000);
     return () => clearInterval(t);
-  }, [profile, refreshRequests]);
+  }, [profileId, refreshRequests]);
+
+  // Al abrir "Mi perfil" o "Demanda", trae la calificación y la zona al día.
+  useEffect(() => {
+    if (profileId && (tab === "perfil" || tab === "demanda")) refreshProfile();
+  }, [tab, profileId, refreshProfile]);
 
   const pendingForWorker = profile?.role === "trabajador" ? requests.filter((r) => r.status === "pendiente" && r.worker_id === profile.id).length : 0;
 
