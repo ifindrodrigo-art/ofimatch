@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OfiMatch
 
-## Getting Started
+Plataforma web + app instalable (PWA) que conecta a trabajadores de oficios (electricistas, gasfiteros, albañiles y soldadores) con clientes en Lima Metropolitana.
+Proyecto del curso **Gestión de Proyectos (UPC), Grupo 3, 2026**.
 
-First, run the development server:
+## Qué hace
+
+| Función | Dónde |
+|---|---|
+| Registro de trabajador o cliente (el rol se elige una vez) | `/app` |
+| Solicitud + **match real** por cercanía, reputación y disponibilidad (los pesos cambian según la urgencia) | `src/lib/match.ts` |
+| Aceptar / rechazar / en camino / completar, con desglose de comisión (10%) | `/app` → Solicitudes |
+| **Calificación en dos vías con revelado simultáneo** (la base de datos oculta cada nota hasta que ambos califican) | `supabase/schema.sql` |
+| **Mapa de demanda** por distrito y franja horaria; el trabajador puede mover su zona con un toque | `/app` → Demanda |
+| Teléfono privado: solo se ve tras aceptar el trabajo (botón directo a WhatsApp) | `counterpart_contact()` |
+| Sitio público optimizado para Google: portada, 4 páginas por oficio, sitemap, robots, datos estructurados | `src/app` |
+
+## Tecnología
+
+- **Next.js 15** (App Router, páginas estáticas para SEO) + TypeScript
+- **Supabase** (Postgres + Auth + Row Level Security)
+- **PWA**: manifest + service worker (`public/sw.js`)
+- Mapa: Leaflet + OpenStreetMap/CARTO
+- Hosting: **Vercel** (gratis)
+
+Sin variables de Supabase la app corre en **modo demostración** (todo en el navegador), útil para presentar sin internet estable.
+
+## Puesta en marcha
+
+### 1. Supabase
+1. Crea un proyecto en supabase.com (región São Paulo).
+2. **SQL Editor → New query** → pega todo `supabase/schema.sql` → **Run**.
+3. **Authentication → Sign In / Providers → Email**: desactiva *Confirm email* si quieres que las cuentas funcionen al instante (recomendado para la demo).
+4. **Authentication → URL Configuration**: Site URL = tu dominio de Vercel; agrega `https://TU-DOMINIO/app` en Redirect URLs.
+5. **Project Settings → API Keys**: copia la *Project URL* y la *Publishable key*.
+
+### 2. Vercel
+1. vercel.com → *Sign up with GitHub* → **Add New → Project** → importa este repositorio.
+2. En *Environment Variables* agrega las de `.env.example`.
+3. **Deploy**. Cada `git push` vuelve a publicar solo.
+
+### 3. Google (para que salga al buscar "OfiMatch")
+1. search.google.com/search-console → **Agregar propiedad → Prefijo de URL** → tu dominio.
+2. Verificación **Etiqueta HTML**: copia solo el valor `content="..."` en la variable `NEXT_PUBLIC_GOOGLE_VERIFICATION` de Vercel y vuelve a desplegar → **Verificar**.
+3. **Sitemaps** → envía `sitemap.xml`.
+4. **Inspección de URL** → pega la portada → **Solicitar indexación**. Google suele tardar de 2 a 7 días.
+
+## Desarrollo local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # opcional
+npm run dev                  # http://localhost:3000
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
