@@ -46,6 +46,9 @@ export default function DemandCard() {
           ))}
         </select>
       </header>
+      {rows && rows.length === 0 ? (
+        <p className="demand-empty">Todavía no hay pedidos de este oficio. Aquí verás los distritos y horarios con más pedidos en cuanto los clientes empiecen a pedir.</p>
+      ) : (
       <ul className="bars" aria-busy={!rows}>
         {(rows ? top : Array.from({ length: 5 }, (_, i) => ({ district: "Cargando…", total: 0, i }))).map((r, i) => (
           <li key={`${r.district}-${i}`}>
@@ -57,6 +60,7 @@ export default function DemandCard() {
           </li>
         ))}
       </ul>
+      )}
       <div className="slots" aria-label="Pedidos por franja horaria">
         {(Object.keys(FRANJA) as (keyof typeof FRANJA)[]).map((k) => (
           <div key={k} style={{ ["--a" as string]: sum ? 0.12 + (totals[k] / sum) * 0.75 : 0.12 }}>

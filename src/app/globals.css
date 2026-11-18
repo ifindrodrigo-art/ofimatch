@@ -536,3 +536,5 @@ textarea.input { height: auto; min-height: 96px; padding: 12px 14px; resize: ver
   .chips::-webkit-scrollbar { display: none; }
   .chip-btn { flex: none; }
 }
+.demand-empty { color: var(--on-dark-2); font-size: 15px; padding: 8px 0; }
+.team-row .avatar .ico { width: 20px; height: 20px; color: #fff; }

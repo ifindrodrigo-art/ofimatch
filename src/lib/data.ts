@@ -252,3 +252,9 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ||
   "https://ofimatch-gilt.vercel.app"
 ).replace(/\/$/, "");
+
+/** Sin Supabase configurado la app corre en modo demostración (datos ficticios en el navegador). */
+export const DEMO_MODE = !(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+);

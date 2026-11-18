@@ -1,10 +1,12 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { districtByName } from "@/lib/data";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getBackend } from "@/lib/backend";
+import { DEMO_MODE, districtByName, oficioById } from "@/lib/data";
 import { rankWorkers, ratingOf } from "@/lib/match";
 import { avatarColor, initials, soles } from "@/lib/people";
 import { emitSearch } from "@/lib/searchBus";
 import { DEMO_WORKERS } from "@/lib/seed";
+import type { Profile } from "@/lib/types";
 import { Icon } from "./Icons";
 
 const PH = [
@@ -24,26 +26,35 @@ const PILLS: { text: string; q: string }[] = [
   { text: "Cambio de chapas", q: "chapa" },
 ];
 
-// Tarjeta de match del hero: el cálculo real para un pedido urgente de electricista en Miraflores.
 const cliente = districtByName("Miraflores")!;
-const top = rankWorkers(
-  DEMO_WORKERS.filter((w) => w.oficio === "electricista"),
-  cliente,
-  "ahora",
-)[0];
-
-const districtsWithWorkers = Object.entries(
-  DEMO_WORKERS.reduce<Record<string, number>>((acc, w) => ((acc[w.district] = (acc[w.district] ?? 0) + 1), acc), {}),
-)
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 6)
-  .map(([d]) => d);
-
 export default function Hero() {
   const [paused, setPaused] = useState(false);
   const [ph, setPh] = useState(0);
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [workers, setWorkers] = useState<Profile[]>(DEMO_MODE ? DEMO_WORKERS : []);
+
+  useEffect(() => {
+    if (DEMO_MODE) return;
+    getBackend()
+      .listWorkers()
+      .then(setWorkers)
+      .catch(() => {});
+  }, []);
+
+  // Tarjeta del hero: el técnico real mejor ubicado para un pedido urgente en Miraflores.
+  const top = useMemo(() => {
+    const pool = workers.filter((w) => w.oficio === "electricista");
+    return rankWorkers(pool.length ? pool : workers, cliente, "ahora")[0];
+  }, [workers]);
+  const districtsWithWorkers = useMemo(
+    () =>
+      Object.entries(workers.reduce<Record<string, number>>((acc, w) => ((acc[w.district] = (acc[w.district] ?? 0) + 1), acc), {}))
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6)
+        .map(([d]) => d),
+    [workers],
+  );
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -141,7 +152,7 @@ export default function Hero() {
               <g transform="translate(262 176)">
                 <rect x="-50" y="-42" width="100" height="24" rx="12" fill="#FFFFFF" />
                 <text className="bubble-text" x="0" y="-26" textAnchor="middle">
-                  {top.worker.full_name.split(" ")[0]}, {top.km.toFixed(1)} km
+                  {top ? `${top.worker.full_name.split(" ")[0]}, ${top.km.toFixed(1)} km` : "Técnico cerca"}
                 </text>
                 <circle r="12" fill="rgba(34,211,238,.25)" />
                 <circle className="dot" r="7" />
@@ -161,6 +172,7 @@ export default function Hero() {
               <span>3 tomacorrientes en Miraflores, hoy</span>
             </div>
           </div>
+          {top && (
           <div className="match-card">
             <div className="mc-top">
               <span className="avatar lg" style={{ ["--av" as string]: avatarColor(top.worker.full_name) }}>
@@ -168,14 +180,20 @@ export default function Hero() {
               </span>
               <div>
                 <strong>{top.worker.full_name}</strong>
-                <span>Electricista en {top.worker.district}</span>
+                <span>{oficioById(top.worker.oficio ?? "")?.singular ?? "Técnico"} en {top.worker.district}</span>
               </div>
               <span className="match-pct">{Math.round(top.score)}/100 match</span>
             </div>
             <div className="mc-meta">
               <span>
                 <Icon name="star" className="ico star" />
-                {ratingOf(top.worker).toFixed(1)} <em>({top.worker.rating_count})</em>
+                {top.worker.rating_count ? (
+                  <>
+                    {ratingOf(top.worker).toFixed(1)} <em>({top.worker.rating_count})</em>
+                  </>
+                ) : (
+                  <em>Sin reseñas aún</em>
+                )}
               </span>
               <span>
                 <Icon name="pin" />
@@ -183,15 +201,16 @@ export default function Hero() {
               </span>
               <span>
                 <Icon name="wallet" />
-                Desde {soles(top.worker.price_from ?? 0)}
+                {top.worker.price_from ? `Desde ${soles(top.worker.price_from)}` : "Precio a coordinar"}
               </span>
             </div>
             <span className="btn btn-primary btn-block">Solicitar a {top.worker.full_name.split(" ")[0]}</span>
           </div>
+          )}
         </div>
       </div>
       <div className="wrap hero-foot">
-        <span className="label">Técnicos en:</span>
+        {districtsWithWorkers.length > 0 && <span className="label">Técnicos en:</span>}
         <ul className="districts">
           {districtsWithWorkers.map((d) => (
             <li key={d}>{d}</li>

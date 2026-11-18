@@ -74,8 +74,7 @@ export function SiteFooter() {
             <span>Hecho en Lima, Perú</span>
           </div>
           <p className="foot-note">
-            Proyecto del curso Gestión de Proyectos, UPC, Grupo 3, 2026. Los perfiles de ejemplo son ficticios y sirven para mostrar cómo
-            funciona la plataforma.
+            Proyecto del curso Gestión de Proyectos, UPC, Grupo 3, 2026.
           </p>
         </div>
       </div>

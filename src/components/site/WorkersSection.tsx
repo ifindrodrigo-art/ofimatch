@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getBackend } from "@/lib/backend";
-import { DISTRICTS, OFICIOS, districtByName, oficioById, type OficioId } from "@/lib/data";
+import { DEMO_MODE, DISTRICTS, OFICIOS, districtByName, oficioById, type OficioId } from "@/lib/data";
 import { rankWorkers } from "@/lib/match";
 import { avatarColor, badgeOf, initials, ratingText, roleOf, soles } from "@/lib/people";
 import { onSearch } from "@/lib/searchBus";
@@ -25,7 +25,8 @@ function haystack(w: Profile) {
 }
 
 export default function WorkersSection({ fixedTrade }: { fixedTrade?: OficioId }) {
-  const [workers, setWorkers] = useState<Profile[]>(() => DEMO_WORKERS.filter((w) => !fixedTrade || w.oficio === fixedTrade));
+  const [workers, setWorkers] = useState<Profile[]>(() => (DEMO_MODE ? DEMO_WORKERS.filter((w) => !fixedTrade || w.oficio === fixedTrade) : []));
+  const [loaded, setLoaded] = useState(DEMO_MODE);
   const [covers, setCovers] = useState<Record<string, string>>({});
   const [trade, setTrade] = useState<OficioId | "todos">(fixedTrade ?? "todos");
   const [q, setQ] = useState("");
@@ -58,12 +59,13 @@ export default function WorkersSection({ fixedTrade }: { fixedTrade?: OficioId }
     let alive = true;
     b.listWorkers(fixedTrade)
       .then(async (list) => {
-        if (!alive || !list.length) return;
+        if (!alive) return;
         setWorkers(list);
+        setLoaded(true);
         const c = await b.covers(list.map((w) => w.id));
         if (alive) setCovers(c);
       })
-      .catch(() => {});
+      .catch(() => alive && setLoaded(true));
     return () => {
       alive = false;
     };
@@ -141,7 +143,21 @@ export default function WorkersSection({ fixedTrade }: { fixedTrade?: OficioId }
       </div>
 
       <div className="workers">
-        {list.length === 0 ? (
+        {!loaded ? (
+          <div className="empty" role="status">
+            Cargando técnicos…
+          </div>
+        ) : workers.length === 0 || (list.length === 0 && !q) ? (
+          <div className="empty">
+            <strong>
+              Todavía no hay {trade !== "todos" ? oficioById(trade)!.plural.toLowerCase() : "técnicos"} registrados
+            </strong>
+            OfiMatch recién empieza. Si trabajas en este oficio, crea tu perfil gratis y aparece aquí.
+            <Link className="btn btn-primary" href="/app?rol=trabajador">
+              Crear mi perfil de técnico
+            </Link>
+          </div>
+        ) : list.length === 0 ? (
           <div className="empty">
             <strong>No encontramos técnicos para “{cleanQ}”</strong>
             Prueba con el nombre del oficio, como gasfitería o electricidad.

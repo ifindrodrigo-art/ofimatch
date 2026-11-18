@@ -158,31 +158,31 @@ export default function Home() {
                 </header>
                 <div className="team-row">
                   <span className="avatar lg" style={{ ["--av" as string]: "#1D4ED8" }}>
-                    MP
+                    <Icon name="bolt" />
                   </span>
                   <div>
-                    <strong>Miguel Paredes</strong>
-                    <span>Electricista, pozo a tierra</span>
+                    <strong>Electricista</strong>
+                    <span>Pozo a tierra</span>
                   </div>
                   <span className="status ok">Completado</span>
                 </div>
                 <div className="team-row">
                   <span className="avatar lg" style={{ ["--av" as string]: "#0891B2" }}>
-                    RQ
+                    <Icon name="faucet" />
                   </span>
                   <div>
-                    <strong>Rosa Quispe</strong>
-                    <span>Gasfitera, bombas y tanques</span>
+                    <strong>Gasfitero</strong>
+                    <span>Bombas y tanques</span>
                   </div>
                   <span className="status go">En camino</span>
                 </div>
                 <div className="team-row">
                   <span className="avatar lg" style={{ ["--av" as string]: "#334155" }}>
-                    LC
+                    <Icon name="weld" />
                   </span>
                   <div>
-                    <strong>Luis Ccori</strong>
-                    <span>Soldador, puerta de garaje</span>
+                    <strong>Soldador</strong>
+                    <span>Puerta de garaje</span>
                   </div>
                   <span className="status wait">Jueves 9:00</span>
                 </div>
