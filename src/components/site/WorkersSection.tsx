@@ -186,7 +186,13 @@ export default function WorkersSection({ fixedTrade }: { fixedTrade?: OficioId }
                 </h3>
                 <div className="gig-rate">
                   <Icon name="star" className="ico star" />
-                  {ratingText(w)} <em>({w.rating_count})</em>
+                  {w.rating_count ? (
+                    <>
+                      {ratingText(w)} <em>({w.rating_count})</em>
+                    </>
+                  ) : (
+                    <em>Sin reseñas aún</em>
+                  )}
                 </div>
                 <div className="gig-dist">
                   <Icon name="pin" className="ico sm" />
