@@ -1,6 +1,8 @@
 # OfiMatch
 
-Plataforma web + app instalable (PWA) que conecta a trabajadores de oficios (electricistas, gasfiteros, albañiles y soldadores) con clientes en Lima Metropolitana.
+Plataforma web + app instalable (PWA) que conecta a técnicos de 9 oficios (electricistas, gasfiteros, albañiles, soldadores, pintores, carpinteros, cerrajeros, climatización y drywall) con clientes en Lima Metropolitana.
+
+Diseño: sistema documentado en `DESIGN.md` y `PRODUCT.md` (generados con la skill Impeccable, instalada en `.claude/skills/impeccable`).
 Proyecto del curso **Gestión de Proyectos (UPC), Grupo 3, 2026**.
 
 ## Qué hace
@@ -29,7 +31,7 @@ Sin variables de Supabase la app corre en **modo demostración** (todo en el nav
 
 ### 1. Supabase
 1. Crea un proyecto en supabase.com (región São Paulo).
-2. **SQL Editor → New query** → pega todo `supabase/schema.sql` → **Run**.
+2. **SQL Editor → New query** → pega todo `supabase/schema.sql` → **Run**. Luego, en otra consulta, pega `supabase/migration_002.sql` → **Run** (9 oficios, precio desde y portafolio de fotos).
 3. **Authentication → Sign In / Providers → Email**: desactiva *Confirm email* si quieres que las cuentas funcionen al instante (recomendado para la demo).
 4. **Authentication → URL Configuration**: Site URL = tu dominio de Vercel; agrega `https://TU-DOMINIO/app` en Redirect URLs.
 5. **Project Settings → API Keys**: copia la *Project URL* y la *Publishable key*.

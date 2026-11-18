@@ -1,32 +1,30 @@
 import Link from "next/link";
-import Matcher from "@/components/Matcher";
-import { JsonLd, SiteFooter, SiteHeader } from "@/components/Site";
-import { OFICIOS, SITE_URL } from "@/lib/data";
+import { JsonLd, SiteFooter } from "@/components/Site";
+import Carousel from "@/components/site/Carousel";
+import DemandCard from "@/components/site/DemandCard";
+import Hero from "@/components/site/Hero";
+import HowItWorks from "@/components/site/HowItWorks";
+import { Icon } from "@/components/site/Icons";
+import Illus from "@/components/site/Illus";
+import PopularServices from "@/components/site/PopularServices";
+import SiteHeader from "@/components/site/SiteHeader";
+import TradeTiles from "@/components/site/TradeTiles";
+import Voices from "@/components/site/Voices";
+import WorkersSection from "@/components/site/WorkersSection";
+import { COMMISSION, OFICIOS, SITE_URL } from "@/lib/data";
 
 const FAQ = [
   {
-    q: "¿Cómo elige OfiMatch al trabajador?",
-    a: "Ordena a los trabajadores del oficio que pediste según tres cosas: qué tan cerca están de tu distrito, su reputación (calificaciones reales de otros clientes) y si están disponibles. Si es una emergencia pesa más la cercanía; si puede esperar a la semana, pesa más la reputación. Siempre ves el puntaje y por qué.",
+    q: "¿Cómo elige OfiMatch al técnico?",
+    a: "Ordena a los técnicos del oficio que pediste según qué tan cerca están de tu distrito, su reputación (calificaciones de clientes reales, ajustadas por la cantidad de trabajos) y si están disponibles. Si es una emergencia pesa más la cercanía; si puede esperar, pesa más la reputación.",
   },
   {
     q: "¿Cuánto cuesta usar OfiMatch?",
-    a: "Registrarse y pedir un servicio es gratis. El precio del trabajo lo acuerdas directamente con el trabajador. OfiMatch cobra una comisión de 10% al trabajador solo cuando el trabajo se completa; nunca por anunciarse.",
+    a: `Pedir un servicio es gratis. Cada técnico muestra su precio desde y el monto final lo acuerdan antes de empezar. OfiMatch cobra ${Math.round(COMMISSION * 100)}% al técnico solo cuando el trabajo se completa.`,
   },
   {
     q: "¿Qué es la calificación en dos vías?",
-    a: "Al terminar, el cliente califica al trabajador (puntualidad, calidad y trato) y el trabajador califica al cliente (pago a tiempo, claridad y trato). Ninguno ve la nota del otro hasta que ambos califican, así nadie califica por represalia.",
-  },
-  {
-    q: "¿Mi número de teléfono es público?",
-    a: "No. Tu número solo se muestra a la otra persona cuando un trabajador acepta tu solicitud, para que coordinen por WhatsApp o llamada.",
-  },
-  {
-    q: "¿En qué distritos funciona?",
-    a: "En Lima Metropolitana y el Callao. Eliges tu distrito y el match calcula la distancia hasta el distrito de cada trabajador.",
-  },
-  {
-    q: "Soy electricista, gasfitero, albañil o soldador. ¿Cómo me uno?",
-    a: "Abre la app, elige «Ofrezco mis servicios», completa tu oficio, distrito y años de experiencia, y activa tu disponibilidad. Además verás un mapa con los distritos donde más se pide tu oficio.",
+    a: "Al terminar, el cliente califica al técnico y el técnico califica al cliente. Ninguno ve la nota del otro hasta que ambos califican, así nadie califica por represalia.",
   },
 ];
 
@@ -37,196 +35,259 @@ export default function Home() {
         data={{
           "@context": "https://schema.org",
           "@graph": [
-            {
-              "@type": "Organization",
-              "@id": `${SITE_URL}/#org`,
-              name: "OfiMatch",
-              url: SITE_URL,
-              logo: `${SITE_URL}/icons/icon-512.png`,
-              areaServed: "Lima Metropolitana, Perú",
-            },
-            {
-              "@type": "WebSite",
-              "@id": `${SITE_URL}/#web`,
-              name: "OfiMatch",
-              url: SITE_URL,
-              inLanguage: "es-PE",
-              publisher: { "@id": `${SITE_URL}/#org` },
-            },
-            {
-              "@type": "FAQPage",
-              mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
-            },
+            { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: "OfiMatch", url: SITE_URL, logo: `${SITE_URL}/icons/icon-512.png`, areaServed: "Lima Metropolitana, Perú" },
+            { "@type": "WebSite", "@id": `${SITE_URL}/#web`, name: "OfiMatch", url: SITE_URL, inLanguage: "es-PE", publisher: { "@id": `${SITE_URL}/#org` } },
+            { "@type": "FAQPage", mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
           ],
         }}
       />
-      <SiteHeader />
+      <SiteHeader catbar />
       <main>
-        <section className="hero">
+        <Hero />
+
+        <div className="wrap">
+          <TradeTiles />
+        </div>
+
+        <section className="section" aria-labelledby="pop-title">
           <div className="wrap">
-            <div className="afiche">
-              <h1>
-                <span className="banda banda-1">¿Se malogró</span>
-                <span className="banda banda-2">algo en casa?</span>
-                <span className="banda banda-3">Hay un técnico cerca.</span>
-              </h1>
-              <p className="hero-sub">
-                OfiMatch te conecta con electricistas, gasfiteros, albañiles y soldadores de tu zona, ordenados por cercanía, urgencia y
-                reputación real.
-              </p>
-              <div className="hero-cta">
-                <Link href="/app" className="btn btn-primary">
-                  Pedir un servicio
-                </Link>
-                <Link href="/trabajadores" className="btn btn-ghost">
-                  Soy trabajador de oficio
-                </Link>
+            <div className="sec-head">
+              <h2 className="h2" id="pop-title">
+                Servicios populares
+              </h2>
+            </div>
+            <PopularServices />
+          </div>
+        </section>
+
+        <section className="section" aria-labelledby="usp-title">
+          <div className="wrap">
+            <div className="sec-head">
+              <h2 className="h2 h2-sm" id="usp-title">
+                Resuelve tu casa con técnicos de confianza
+              </h2>
+              <Link className="btn btn-dark" href="/app">
+                Únete ahora
+              </Link>
+            </div>
+            <ul className="usp-list">
+              <li>
+                <span className="usp-ico">
+                  <Icon name="users" />
+                </span>
+                Técnicos de 9 oficios en Lima Metropolitana y Callao
+              </li>
+              <li>
+                <span className="usp-ico">
+                  <Icon name="match" />
+                </span>
+                Match automático por oficio, cercanía y urgencia
+              </li>
+              <li>
+                <span className="usp-ico">
+                  <Icon name="camera" />
+                </span>
+                Perfiles con fotos de trabajos y reseñas en dos vías
+              </li>
+              <li>
+                <span className="usp-ico">
+                  <Icon name="wallet" />
+                </span>
+                Precio desde a la vista y monto acordado antes de empezar
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="section" id="tecnicos" aria-labelledby="tec-title">
+          <div className="wrap">
+            <div className="sec-head">
+              <div>
+                <h2 className="h2 h2-sm" id="tec-title">
+                  Técnicos cerca de ti
+                </h2>
+                <p className="sec-sub">Filtra por oficio, busca lo que necesitas y elige el distrito donde es el trabajo.</p>
               </div>
-              <p className="hero-trust">Gratis para pedir. En Lima Metropolitana y Callao.</p>
+              <a className="link-more" href="#como-funciona">
+                Cómo elegimos tu match <Icon name="arrow" />
+              </a>
             </div>
-            <Matcher />
+            <WorkersSection />
           </div>
         </section>
 
-        <section className="section" id="como-funciona" aria-labelledby="como-title">
-          <div className="wrap">
-            <div className="section-head">
-              <h2 id="como-title">Del problema al trabajo hecho</h2>
-              <p>Sin buscar en grupos de Facebook ni pedir números prestados.</p>
-            </div>
-            <ol className="pasos">
-              <li>
-                <h3>Cuenta qué necesitas</h3>
-                <p>Elige el oficio, tu distrito y para cuándo lo necesitas. Describe el problema en una línea.</p>
-              </li>
-              <li>
-                <h3>Revisa el match</h3>
-                <p>Ves a los trabajadores ordenados con su puntaje, distancia, reseñas y años de experiencia.</p>
-              </li>
-              <li>
-                <h3>Coordinen directo</h3>
-                <p>Cuando el trabajador acepta, ambos ven el WhatsApp del otro para coordinar la visita y el precio.</p>
-              </li>
-              <li>
-                <h3>Califíquense a la vez</h3>
-                <p>Al terminar, ambos califican. Las notas se revelan juntas y alimentan los próximos matches.</p>
-              </li>
-            </ol>
-          </div>
-        </section>
-
-        <section className="section" aria-label="Para quién es OfiMatch">
-          <div className="wrap split">
-            <div className="panel panel-cliente">
-              <h2>Si necesitas un técnico</h2>
+        <div className="wrap band-wrap" id="empresas">
+          <section className="band band-pro" aria-labelledby="pro-title">
+            <div>
+              <div className="band-brand">
+                ofimatch<i />
+                <span>empresas</span>
+                <span className="soon">Próximamente</span>
+              </div>
+              <h2 id="pro-title">Arma tu equipo de mantenimiento sin buscar uno por uno</h2>
               <ul>
-                <li>Encuentras a alguien cerca en minutos, también para emergencias.</li>
-                <li>Ves reseñas de trabajos reales antes de abrir la puerta de tu casa.</li>
-                <li>Sabes por qué te recomendamos a cada persona.</li>
+                <li>
+                  <Icon name="check" />
+                  Técnicos para edificios, locales y obras desde un solo lugar
+                </li>
+                <li>
+                  <Icon name="check" />
+                  Solicitudes recurrentes y urgencias en un mismo panel
+                </li>
+                <li>
+                  <Icon name="check" />
+                  Historial de cada trabajo con fotos y calificaciones
+                </li>
               </ul>
-              <Link href="/app" className="btn btn-dark">
+              <Link className="btn btn-light" href="/app">
+                Pedir con una cuenta de cliente
+              </Link>
+              <p className="note">
+                <Icon name="shield" />
+                Hoy ya puedes pedir técnicos para tu negocio con una cuenta de cliente.
+              </p>
+            </div>
+            <div className="band-visual" aria-hidden="true">
+              <div className="team-card">
+                <header>
+                  <div>
+                    <strong>Mantenimiento mensual</strong>
+                    <span>Edificio en San Isidro, 24 departamentos</span>
+                  </div>
+                  <span className="status go">Esta semana</span>
+                </header>
+                <div className="team-row">
+                  <span className="avatar lg" style={{ ["--av" as string]: "#1D4ED8" }}>
+                    MP
+                  </span>
+                  <div>
+                    <strong>Miguel Paredes</strong>
+                    <span>Electricista, pozo a tierra</span>
+                  </div>
+                  <span className="status ok">Completado</span>
+                </div>
+                <div className="team-row">
+                  <span className="avatar lg" style={{ ["--av" as string]: "#0891B2" }}>
+                    RQ
+                  </span>
+                  <div>
+                    <strong>Rosa Quispe</strong>
+                    <span>Gasfitera, bombas y tanques</span>
+                  </div>
+                  <span className="status go">En camino</span>
+                </div>
+                <div className="team-row">
+                  <span className="avatar lg" style={{ ["--av" as string]: "#334155" }}>
+                    LC
+                  </span>
+                  <div>
+                    <strong>Luis Ccori</strong>
+                    <span>Soldador, puerta de garaje</span>
+                  </div>
+                  <span className="status wait">Jueves 9:00</span>
+                </div>
+              </div>
+              <span className="float-pill">
+                <Icon name="doc" />
+                Reporte mensual listo
+              </span>
+            </div>
+          </section>
+        </div>
+
+        <div className="wrap band-wrap" id="demanda">
+          <section className="band band-data" aria-labelledby="data-title">
+            <div>
+              <div className="band-brand">
+                ofimatch<i />
+                <span>para técnicos</span>
+              </div>
+              <h2 id="data-title">Mira dónde se necesita tu oficio, antes de salir de casa</h2>
+              <p className="lead">
+                El mapa de demanda junta las solicitudes de la plataforma para mostrarte qué distritos y horarios piden más tu trabajo. Con un
+                toque te pones disponible en esa zona.
+              </p>
+              <Link className="btn btn-light" href="/trabajadores">
+                Ofrece tus servicios
+              </Link>
+              <p className="note">
+                <Icon name="wallet" />
+                Registro gratis. Pagas {Math.round(COMMISSION * 100)}% solo cuando terminas un trabajo.
+              </p>
+            </div>
+            <div className="band-visual">
+              <DemandCard />
+            </div>
+          </section>
+        </div>
+
+        <section className="section" id="como-funciona" aria-labelledby="how-title">
+          <div className="wrap">
+            <HowItWorks />
+          </div>
+        </section>
+
+        <section className="section" aria-labelledby="voice-title">
+          <div className="wrap">
+            <h2 className="h2 h2-sm" id="voice-title">
+              Lo que nos dicen los técnicos
+            </h2>
+            <p className="sec-sub">Frases del mapa de empatía de nuestra investigación con técnicos independientes de Lima Metropolitana.</p>
+            <Voices />
+            <div className="stats">
+              <div className="stat">
+                <b>+24 000</b>
+                <span>puestos proyectados en oficios especializados para 2026</span>
+                <small>Fuente: MTPE, 2026</small>
+              </div>
+              <div className="stat">
+                <b>40 %</b>
+                <span>de esa demanda requiere formación técnica especializada</span>
+                <small>Fuente: MTPE, 2026</small>
+              </div>
+              <div className="stat">
+                <b>11 % → 24 %</b>
+                <span>formalización con intermediación digital en el caso Zolvers</span>
+                <small>Fuente: Poblete et al., 2024</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section" id="guias" aria-labelledby="guides-title">
+          <div className="wrap">
+            <div className="sec-head">
+              <h2 className="h2" id="guides-title">
+                Guías de precios y oficios
+              </h2>
+            </div>
+            <Carousel label="Guías">
+              {OFICIOS.map((o) => (
+                <li key={o.id}>
+                  <Link className="guide" href={`/oficios/${o.slug}`}>
+                    <Illus icon={o.icon} tint={o.tint} pattern={o.id === "electricista" ? "grid" : ""} />
+                    <h3>{o.pregunta}</h3>
+                    <p>Trabajos comunes, cómo elegimos al técnico y precios desde de {o.plural.toLowerCase()} en Lima.</p>
+                  </Link>
+                </li>
+              ))}
+            </Carousel>
+          </div>
+        </section>
+
+        <div className="wrap">
+          <section className="cta-band" aria-labelledby="cta-title">
+            <h2 id="cta-title">Servicios técnicos al alcance de tu mano</h2>
+            <div className="row">
+              <Link className="btn btn-light btn-lg" href="/app">
                 Pedir un servicio
               </Link>
-            </div>
-            <div className="panel panel-trabajador">
-              <h2>Si vives de tu oficio</h2>
-              <ul>
-                <li>Recibes clientes nuevos de tu zona sin depender solo de recomendaciones.</li>
-                <li>Construyes una reputación que puedes mostrar y que también califica al cliente.</li>
-                <li>Ves en qué distritos y horarios se pide más tu oficio.</li>
-                <li>Pagas solo cuando concretas un trabajo.</li>
-              </ul>
-              <Link href="/trabajadores" className="btn btn-primary">
-                Ofrecer mis servicios
+              <Link className="btn btn-on-dark btn-lg" href="/trabajadores">
+                Soy técnico
               </Link>
             </div>
-          </div>
-        </section>
-
-        <section className="section" aria-labelledby="dosvias-title">
-          <div className="wrap dosvias">
-            <div>
-              <div className="section-head" style={{ marginBottom: 0 }}>
-                <h2 id="dosvias-title">Una reputación que va en los dos sentidos</h2>
-                <p>
-                  El trabajador también califica al cliente: si pagó a tiempo, si explicó bien el trabajo y cómo lo trató. Ninguna nota se
-                  muestra hasta que los dos califican.
-                </p>
-              </div>
-            </div>
-            <div className="sobres" aria-label="Ejemplo de calificación simultánea">
-              <div className="sobre">
-                <span className="avatar">AC</span>
-                <div>
-                  <b>Ana califica a Julio</b>
-                  <span className="sobre-velo">Puntualidad, calidad y trato</span>
-                </div>
-                <span className="estrellas" aria-label="5 estrellas">
-                  ★★★★★
-                </span>
-              </div>
-              <div className="sobre">
-                <span className="avatar">JQ</span>
-                <div>
-                  <b>Julio califica a Ana</b>
-                  <span className="sobre-velo">Pago a tiempo, claridad y trato</span>
-                </div>
-                <span className="estrellas" aria-label="5 estrellas">
-                  ★★★★★
-                </span>
-              </div>
-              <p className="dosvias-nota">Las dos notas aparecen al mismo tiempo, cuando ambos terminaron de calificar.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="section" id="oficios" aria-labelledby="oficios-title">
-          <div className="wrap">
-            <div className="section-head">
-              <h2 id="oficios-title">Oficios en OfiMatch</h2>
-              <p>Empezamos por los cuatro oficios que más se piden en los hogares y negocios de Lima.</p>
-            </div>
-            <div className="oficios-grid">
-              {OFICIOS.map((o) => (
-                <Link key={o.id} href={`/oficios/${o.slug}`} className="oficio-card" style={{ ["--c" as string]: o.color }}>
-                  <h3>{o.plural} en Lima</h3>
-                  <ul>
-                    {o.trabajos.slice(0, 3).map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section" id="preguntas" aria-labelledby="faq-title">
-          <div className="wrap">
-            <div className="section-head">
-              <h2 id="faq-title">Preguntas frecuentes</h2>
-            </div>
-            <div className="faq">
-              {FAQ.map((f) => (
-                <details key={f.q}>
-                  <summary>{f.q}</summary>
-                  <p>{f.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section" aria-label="Empieza ahora">
-          <div className="wrap">
-            <div className="cta-final">
-              <h2>Instala OfiMatch en tu celular</h2>
-              <Link href="/app" className="btn btn-dark">
-                Abrir la app
-              </Link>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </main>
       <SiteFooter />
     </>

@@ -1,9 +1,12 @@
 "use client";
 import { useState } from "react";
-import { DISTRICTS, OFICIOS, URGENCIAS, districtByName, type OficioId, type Urgency } from "@/lib/data";
-import { rankWorkers, ratingOf, type MatchResult } from "@/lib/match";
+import { DISTRICTS, OFICIOS, URGENCIAS, districtByName, oficioById, type OficioId, type Urgency } from "@/lib/data";
+import { rankWorkers, type MatchResult } from "@/lib/match";
+import { avatarColor, badgeOf, initials, ratingText, soles } from "@/lib/people";
 import type { Backend, Profile } from "@/lib/types";
-import { initials } from "../Site";
+import { Icon } from "../site/Icons";
+import Illus from "../site/Illus";
+import PortfolioSheet from "./PortfolioSheet";
 
 export default function NewRequest({
   backend,
@@ -21,18 +24,28 @@ export default function NewRequest({
   const [urgency, setUrgency] = useState<Urgency>("hoy");
   const [description, setDescription] = useState("");
   const [results, setResults] = useState<MatchResult<Profile>[] | null>(null);
+  const [covers, setCovers] = useState<Record<string, string>>({});
+  const [sheet, setSheet] = useState<Profile | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const of = oficioById(oficio)!;
+  const u = URGENCIAS.find((x) => x.id === urgency)!;
 
   async function findMatches(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (description.trim().length < 5) {
+      setError("Cuéntanos el problema en una línea (mínimo 5 letras).");
+      return;
+    }
     setBusy(true);
     try {
       const workers = (await backend.listWorkers(oficio)).filter((w) => w.id !== profile.id);
-      setResults(rankWorkers(workers, districtByName(district)!, urgency).slice(0, 5));
+      const ranked = rankWorkers(workers, districtByName(district)!, urgency).slice(0, 6);
+      setResults(ranked);
+      backend.covers(ranked.map((r) => r.worker.id)).then(setCovers).catch(() => {});
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No pudimos buscar trabajadores.");
+      setError(err instanceof Error ? err.message : "No pudimos buscar técnicos.");
     } finally {
       setBusy(false);
     }
@@ -50,70 +63,108 @@ export default function NewRequest({
     }
   }
 
-  const of = OFICIOS.find((o) => o.id === oficio)!;
-
   if (results)
     return (
       <div className="stack">
         <div>
           <h1 className="h-app">Tu match</h1>
           <p className="sub-app">
-            {of.plural} cerca de {district}, para {URGENCIAS.find((u) => u.id === urgency)!.label.toLowerCase()}.{" "}
-            {URGENCIAS.find((u) => u.id === urgency)!.hint}.
+            {of.plural} cerca de {district}, para {u.label.toLowerCase()}. {u.hint}.
           </p>
         </div>
-        {results.length === 0 && (
-          <div className="card empty">
-            <p>Todavía no hay {of.plural.toLowerCase()} registrados. Prueba con otro oficio.</p>
+        {results.length === 0 ? (
+          <div className="empty-app">
+            <Icon name="search" />
+            <p>Todavía no hay {of.plural.toLowerCase()} registrados. Prueba con otro oficio o vuelve más tarde.</p>
           </div>
+        ) : (
+          <>
+            <div className="legend" aria-hidden="true">
+              <span style={{ ["--c" as string]: "var(--cyan)" }}>Cercanía</span>
+              <span style={{ ["--c" as string]: "var(--brand)" }}>Reputación</span>
+              <span style={{ ["--c" as string]: "#a5b4fc" }}>Disponibilidad</span>
+            </div>
+            <ol className="match-list">
+              {results.map((r, i) => {
+                const w = r.worker;
+                const badge = badgeOf(w);
+                const first = w.full_name.split(" ")[0];
+                return (
+                  <li key={w.id} className={`mcard${i === 0 ? " best" : ""}`}>
+                    <Illus icon={of.icon} tint={of.tint} pattern={oficio === "electricista" ? "grid" : ""} chip={w.work_label} photo={covers[w.id]} photoAlt={`Trabajo de ${w.full_name}`}>
+                      {w.available && (
+                        <span className="gig-avail">
+                          <i />
+                          Disponible ahora
+                        </span>
+                      )}
+                    </Illus>
+                    <div className="mcard-body">
+                      <div className="mcard-top">
+                        <span className="avatar lg" style={{ ["--av" as string]: avatarColor(w.full_name) }}>
+                          {initials(w.full_name)}
+                        </span>
+                        <div>
+                          <strong>{w.full_name}</strong>
+                          <span>
+                            {r.km < 0.3 ? `${w.district}, tu mismo distrito` : `${w.district}, a ${r.km.toFixed(1)} km`}
+                            {badge ? `, ${badge.text.toLowerCase()}` : ""}
+                          </span>
+                        </div>
+                        <div className="score">
+                          <b>{Math.round(r.score)}</b>
+                          <small>de 100</small>
+                        </div>
+                      </div>
+                      <div
+                        className="scorebar"
+                        role="img"
+                        aria-label={`Cercanía ${Math.round(r.parts.prox)}, reputación ${Math.round(r.parts.rep)}, disponibilidad ${Math.round(r.parts.disp)} puntos`}
+                      >
+                        <i className="p" style={{ width: `${r.parts.prox}%` }} />
+                        <i className="r" style={{ width: `${r.parts.rep}%` }} />
+                        <i className="d" style={{ width: `${r.parts.disp}%` }} />
+                      </div>
+                      <div className="facts">
+                        <span>
+                          <Icon name="star" className="ico star" />
+                          {w.rating_count ? `${ratingText(w)} (${w.rating_count})` : "Sin reseñas aún"}
+                        </span>
+                        <span>
+                          <Icon name="check" />
+                          {w.jobs_done} trabajos
+                        </span>
+                        <span>
+                          <Icon name="wallet" />
+                          {w.price_from ? `Desde ${soles(w.price_from)}` : "Precio a coordinar"}
+                        </span>
+                      </div>
+                      {w.bio && <p className="mcard-bio">{w.bio}</p>}
+                      {w.is_demo && <span className="badge-demo">Perfil de demostración: acepta solo.</span>}
+                      <div className="row">
+                        <button type="button" className="btn btn-outline" onClick={() => setSheet(w)}>
+                          <Icon name="image" /> Ver trabajos
+                        </button>
+                        <button type="button" className="btn btn-primary" disabled={busy} onClick={() => send(r)}>
+                          Solicitar a {first}
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </>
         )}
-        <ol className="result-list">
-          {results.map((r) => (
-            <li key={r.worker.id} className="result" style={{ gridTemplateColumns: "44px 1fr auto" }}>
-              <span className="avatar" aria-hidden="true">
-                {initials(r.worker.full_name)}
-              </span>
-              <div>
-                <div className="result-name">{r.worker.full_name}</div>
-                <div className="result-meta">
-                  {r.worker.district}, a {r.km.toFixed(1)} km
-                  <br />
-                  {r.worker.rating_count ? `★ ${ratingOf(r.worker).toFixed(1)} en ${r.worker.jobs_done} trabajos` : "Nuevo en OfiMatch"},{" "}
-                  {r.worker.years_exp ?? 0} años de experiencia
-                </div>
-              </div>
-              <div className="score">
-                {Math.round(r.score)}
-                <small>de 100</small>
-              </div>
-              <div className="bar" aria-label={`Cercanía ${Math.round(r.parts.prox)}, reputación ${Math.round(r.parts.rep)}, disponibilidad ${Math.round(r.parts.disp)}`}>
-                <i className="p" style={{ width: `${r.parts.prox}%` }} />
-                <i className="r" style={{ width: `${r.parts.rep}%` }} />
-                <i className="d" style={{ width: `${r.parts.disp}%` }} />
-              </div>
-              {r.worker.bio && (
-                <p className="muted" style={{ gridColumn: "1 / -1" }}>
-                  {r.worker.bio}
-                </p>
-              )}
-              <div style={{ gridColumn: "1 / -1" }} className="row">
-                <span className="muted">{r.worker.available ? "Disponible ahora" : "Ocupado por ahora"}{r.worker.is_demo ? ", perfil de demostración" : ""}</span>
-                <button className="btn btn-primary btn-s" style={{ marginLeft: "auto", flex: "none" }} disabled={busy} onClick={() => send(r)}>
-                  Enviar solicitud
-                </button>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <div className="legend">
-          <span style={{ ["--c" as string]: "var(--turquesa)" }}>Cercanía</span>
-          <span style={{ ["--c" as string]: "var(--amarillo)" }}>Reputación</span>
-          <span style={{ ["--c" as string]: "var(--overol-300)" }}>Disponibilidad</span>
-        </div>
-        {error && <p className="error">{error}</p>}
-        <button className="btn btn-ghost" onClick={() => setResults(null)}>
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        <button className="btn btn-outline" type="button" onClick={() => setResults(null)}>
           Cambiar mi pedido
         </button>
+        {sheet && <PortfolioSheet backend={backend} worker={sheet} onClose={() => setSheet(null)} />}
       </div>
     );
 
@@ -121,51 +172,48 @@ export default function NewRequest({
     <form className="stack" onSubmit={findMatches}>
       <div>
         <h1 className="h-app">¿Qué necesitas, {profile.full_name.split(" ")[0]}?</h1>
-        <p className="sub-app">Te mostramos a los trabajadores que mejor encajan con tu pedido.</p>
+        <p className="sub-app">Te mostramos a los técnicos que mejor encajan con tu pedido.</p>
       </div>
       <div className="field">
-        <span>Oficio</span>
-        <div className="chips" role="group" aria-label="Oficio">
+        <span id="oficio-label">Oficio</span>
+        <div className="trade-row" role="group" aria-labelledby="oficio-label">
           {OFICIOS.map((o) => (
-            <button type="button" key={o.id} className="chip" aria-pressed={oficio === o.id} onClick={() => setOficio(o.id)}>
-              {o.singular}
+            <button type="button" key={o.id} className="trade-chip" aria-pressed={oficio === o.id} onClick={() => setOficio(o.id)}>
+              <Icon name={o.icon} />
+              {o.area}
             </button>
           ))}
         </div>
       </div>
-      <label className="field">
-        <span>Describe el problema</span>
-        <textarea
-          className="input"
-          required
-          minLength={5}
-          maxLength={500}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={`Ej.: ${of.trabajos[0].toLowerCase()}`}
-        />
-      </label>
-      <label className="field">
-        <span>¿Dónde?</span>
-        <select className="input" value={district} onChange={(e) => setDistrict(e.target.value)}>
+      <div className="field">
+        <label htmlFor="r-desc">Describe el problema</label>
+        <textarea id="r-desc" className="input" required minLength={5} maxLength={500} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={`Ej.: ${of.trabajos[0].toLowerCase()}`} />
+      </div>
+      <div className="field">
+        <label htmlFor="r-district">¿Dónde?</label>
+        <select id="r-district" className="input" value={district} onChange={(e) => setDistrict(e.target.value)}>
           {DISTRICTS.map((d) => (
             <option key={d.name}>{d.name}</option>
           ))}
         </select>
-      </label>
+      </div>
       <div className="field">
-        <span>¿Para cuándo?</span>
-        <div className="seg" role="group" aria-label="Urgencia">
-          {URGENCIAS.map((u) => (
-            <button type="button" key={u.id} aria-pressed={urgency === u.id} onClick={() => setUrgency(u.id)}>
-              {u.label}
+        <span id="urg-label">¿Para cuándo?</span>
+        <div className="seg" role="group" aria-labelledby="urg-label">
+          {URGENCIAS.map((x) => (
+            <button type="button" key={x.id} aria-pressed={urgency === x.id} onClick={() => setUrgency(x.id)}>
+              {x.label}
             </button>
           ))}
         </div>
-        <small>{URGENCIAS.find((u) => u.id === urgency)!.hint}.</small>
+        <small>{u.hint}.</small>
       </div>
-      {error && <p className="error">{error}</p>}
-      <button className="btn btn-primary btn-block" disabled={busy}>
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <button className="btn btn-primary btn-block btn-lg" disabled={busy}>
         {busy ? "Buscando…" : "Ver mi match"}
       </button>
     </form>

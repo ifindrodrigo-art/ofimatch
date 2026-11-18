@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import type { Backend, Profile, Rating, Request } from "@/lib/types";
-import { IconLock } from "./Icons";
+import { Icon } from "../site/Icons";
 
 const CRITERIA = {
   cliente: ["Puntualidad", "Calidad del trabajo", "Trato"], // cliente califica al trabajador
@@ -13,7 +13,7 @@ function Stars({ value, onChange, label }: { value: number; onChange: (n: number
     <div className="stars-input" role="radiogroup" aria-label={label}>
       {[1, 2, 3, 4, 5].map((n) => (
         <button key={n} type="button" role="radio" aria-checked={value === n} aria-label={`${n} de 5`} className={n <= value ? "on" : ""} onClick={() => onChange(n)}>
-          ★
+          <Icon name="star" className="ico star" />
         </button>
       ))}
     </div>
@@ -53,11 +53,11 @@ export default function RateBox({ backend, profile, request, otherName }: { back
         <div className="reveal">
           <div>
             <b>Tú calificaste a {first}</b>
-            <span className="big">★ {Number(mine.stars).toFixed(1)}</span>
+            <span className="big">{Number(mine.stars).toFixed(1)} / 5</span>
           </div>
           <div>
             <b>{first} te calificó</b>
-            <span className="big">★ {Number(theirs.stars).toFixed(1)}</span>
+            <span className="big">{Number(theirs.stars).toFixed(1)} / 5</span>
             {theirs.comment && <p className="muted">“{theirs.comment}”</p>}
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function RateBox({ backend, profile, request, otherName }: { back
     return (
       <div className="sealed">
         <span className="lock">
-          <IconLock />
+          <Icon name="lock" />
         </span>
         <span>
           Tu calificación está guardada en sobre cerrado. Se revela cuando {first} también califique.

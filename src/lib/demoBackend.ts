@@ -2,31 +2,36 @@
 // Replica las mismas reglas que la base de datos real (estados, revelado simultáneo, demo auto-acepta).
 import { districtByName, type OficioId } from "./data";
 import { DEMAND_WEIGHTS, DEMO_WORKERS, OFICIO_FACTOR } from "./seed";
-import type { Backend, DemandRow, Profile, Rating, Request } from "./types";
+import type { Backend, DemandRow, PortfolioItem, Profile, Rating, Request } from "./types";
 
 type Store = {
   profiles: Profile[];
   contacts: Record<string, string>;
   requests: Request[];
   ratings: Rating[];
+  portfolio: PortfolioItem[];
   session: string | null;
   emails: Record<string, { id: string; password: string }>;
 };
 
-const KEY = "ofimatch-demo-v1";
+const KEY = "ofimatch-demo-v2";
 const listeners = new Set<() => void>();
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
 
 function fresh(): Store {
   const contacts: Record<string, string> = {};
   DEMO_WORKERS.forEach((w, i) => (contacts[w.id] = `9${String(10000000 + (i + 1) * 7351).padStart(8, "0")}`));
-  return { profiles: structuredClone(DEMO_WORKERS), contacts, requests: [], ratings: [], session: null, emails: {} };
+  return { profiles: structuredClone(DEMO_WORKERS), contacts, requests: [], ratings: [], portfolio: [], session: null, emails: {} };
 }
 
 function load(): Store {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as Store;
+    if (raw) {
+      const st = JSON.parse(raw) as Store;
+      st.portfolio ??= [];
+      return st;
+    }
   } catch {}
   return fresh();
 }
@@ -43,7 +48,9 @@ function withNames(s: Store, r: Request): Request {
   return {
     ...r,
     client: c ? { full_name: c.full_name, district: c.district } : null,
-    worker: w ? { full_name: w.full_name, oficio: w.oficio, rating_sum: w.rating_sum, rating_count: w.rating_count, is_demo: w.is_demo } : null,
+    worker: w
+      ? { full_name: w.full_name, oficio: w.oficio, rating_sum: w.rating_sum, rating_count: w.rating_count, is_demo: w.is_demo, price_from: w.price_from }
+      : null,
   };
 }
 
@@ -88,6 +95,8 @@ export function createDemoBackend(): Backend {
         oficio: input.role === "trabajador" ? (input.oficio ?? null) : null,
         years_exp: input.role === "trabajador" ? (input.years_exp ?? null) : null,
         bio: input.role === "trabajador" ? (input.bio ?? null) : null,
+        price_from: input.role === "trabajador" ? (input.price_from ?? null) : null,
+        work_label: null,
         available: true,
         rating_sum: 0,
         rating_count: 0,
@@ -117,7 +126,38 @@ export function createDemoBackend(): Backend {
       emit();
     },
     async listWorkers(oficio) {
-      return load().profiles.filter((p) => p.role === "trabajador" && p.oficio === oficio);
+      return load().profiles.filter((p) => p.role === "trabajador" && (!oficio || p.oficio === oficio));
+    },
+    async covers(ids) {
+      const out: Record<string, string> = {};
+      for (const it of load().portfolio) if (ids.includes(it.profile_id) && !out[it.profile_id]) out[it.profile_id] = it.url;
+      return out;
+    },
+    async portfolioOf(profileId) {
+      return load().portfolio.filter((x) => x.profile_id === profileId);
+    },
+    async addPortfolio(file, caption) {
+      const p = need();
+      const s = load();
+      if (s.portfolio.filter((x) => x.profile_id === p.id).length >= 12) throw new Error("Puedes tener hasta 12 fotos. Borra una para subir otra.");
+      const url = await new Promise<string>((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(String(r.result));
+        r.onerror = () => rej(new Error("No se pudo leer la foto."));
+        r.readAsDataURL(file);
+      });
+      const id = uid();
+      s.portfolio.unshift({ id, profile_id: p.id, path: id, caption: caption.trim() || null, created_at: new Date().toISOString(), url });
+      try {
+        localStorage.setItem(KEY, JSON.stringify(s));
+      } catch {
+        throw new Error("En modo demostración el celular no tiene más espacio para fotos. Borra alguna.");
+      }
+    },
+    async removePortfolio(item) {
+      const s = load();
+      s.portfolio = s.portfolio.filter((x) => x.id !== item.id);
+      save(s);
     },
     async updateMyProfile(patch) {
       const p = need();

@@ -2,17 +2,18 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SITE_URL } from "@/lib/data";
 import SWRegister from "@/components/SWRegister";
+import { IconSprite } from "@/components/site/Icons";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "OfiMatch: electricistas, gasfiteros, albañiles y soldadores en Lima",
+    default: "OfiMatch: técnicos de oficio cerca de ti en Lima",
     template: "%s | OfiMatch",
   },
   description:
-    "OfiMatch conecta a clientes con trabajadores de oficios cercanos en Lima: electricistas, gasfiteros, albañiles y soldadores con reputación verificada en dos vías.",
+    "Pide electricistas, gasfiteros, albañiles, soldadores, pintores, carpinteros, cerrajeros, técnicos de aire acondicionado y drywall cerca de ti en Lima, con precio desde, fotos de trabajos y reputación en dos vías.",
   applicationName: "OfiMatch",
-  keywords: ["OfiMatch", "electricista Lima", "gasfitero Lima", "albañil Lima", "soldador Lima", "oficios", "técnicos a domicilio"],
+  keywords: ["OfiMatch", "electricista Lima", "gasfitero Lima", "albañil Lima", "soldador Lima", "pintor Lima", "cerrajero Lima", "técnicos a domicilio"],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     siteName: "OfiMatch",
     url: SITE_URL,
     title: "OfiMatch: el técnico de confianza más cerca de ti",
-    description: "Pide un electricista, gasfitero, albañil o soldador en Lima. Match por cercanía, urgencia y reputación.",
+    description: "Técnicos de 9 oficios cerca de ti en Lima, ordenados por cercanía, urgencia y reputación.",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "OfiMatch" }],
   },
   twitter: { card: "summary_large_image", images: ["/og.png"] },
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#13295a",
+  themeColor: "#07122b",
   width: "device-width",
   initialScale: 1,
 };
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es-PE">
       <body>
+        <IconSprite />
         {children}
         <SWRegister />
       </body>

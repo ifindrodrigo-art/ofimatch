@@ -4,8 +4,7 @@ import Link from "next/link";
 import { getBackend } from "@/lib/backend";
 import type { Profile, Request } from "@/lib/types";
 import type { OficioId } from "@/lib/data";
-import { LogoMark } from "../Site";
-import { IconList, IconMap, IconPlus, IconUser } from "./Icons";
+import { Icon } from "../site/Icons";
 import Auth from "./Auth";
 import NewRequest from "./NewRequest";
 import RequestList from "./RequestList";
@@ -23,7 +22,7 @@ export default function AppShell() {
   const [tab, setTab] = useState<Tab>("pedir");
   const [requests, setRequests] = useState<Request[]>([]);
   const [install, setInstall] = useState<BIPEvent | null>(null);
-  const [hint, setHint] = useState<{ oficio?: OficioId; rol?: string }>({});
+  const [hint, setHint] = useState<{ oficio?: OficioId; rol?: string; modo?: string }>({});
   const lastId = useRef<string | null>(null);
 
   const refreshProfile = useCallback(async () => {
@@ -45,7 +44,7 @@ export default function AppShell() {
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    setHint({ oficio: (q.get("oficio") as OficioId) || undefined, rol: q.get("rol") || undefined });
+    setHint({ oficio: (q.get("oficio") as OficioId) || undefined, rol: q.get("rol") || undefined, modo: q.get("modo") || undefined });
     refreshProfile();
     const off = backend.onAuthChange(refreshProfile);
     const onBip = (e: Event) => {
@@ -77,27 +76,26 @@ export default function AppShell() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] =
     profile?.role === "trabajador"
       ? [
-          { id: "solicitudes", label: "Solicitudes", icon: <IconList />, badge: pendingForWorker },
-          { id: "demanda", label: "Demanda", icon: <IconMap /> },
-          { id: "perfil", label: "Mi perfil", icon: <IconUser /> },
+          { id: "solicitudes", label: "Solicitudes", icon: <Icon name="list" />, badge: pendingForWorker },
+          { id: "demanda", label: "Demanda", icon: <Icon name="map" /> },
+          { id: "perfil", label: "Mi perfil", icon: <Icon name="user" /> },
         ]
       : [
-          { id: "pedir", label: "Pedir", icon: <IconPlus /> },
-          { id: "pedidos", label: "Mis pedidos", icon: <IconList /> },
-          { id: "perfil", label: "Mi perfil", icon: <IconUser /> },
+          { id: "pedir", label: "Pedir", icon: <Icon name="plus" /> },
+          { id: "pedidos", label: "Mis pedidos", icon: <Icon name="list" /> },
+          { id: "perfil", label: "Mi perfil", icon: <Icon name="user" /> },
         ];
 
   return (
     <div className="app">
       <header className="app-top">
         <Link href="/" className="logo" aria-label="Ir a la página de OfiMatch">
-          <LogoMark />
-          OfiMatch
+          ofimatch<i />
         </Link>
         <span className="spacer" />
         {install && (
           <button
-            className="btn"
+            className="btn btn-outline"
             onClick={async () => {
               await install.prompt();
               setInstall(null);
@@ -111,13 +109,20 @@ export default function AppShell() {
       <main className="app-main">
         {backend.mode === "demo" && (
           <p className="demo-note">
-            Modo demostración: todo se guarda solo en este dispositivo. Los perfiles de ejemplo aceptan tus pedidos automáticamente.
+            Modo demostración: todo se guarda solo en este celular. Los perfiles de ejemplo aceptan tus pedidos automáticamente.
           </p>
         )}
         {loading ? (
-          <p className="muted">Cargando…</p>
+          <p className="muted" role="status">
+            Cargando…
+          </p>
         ) : !profile ? (
-          <Auth backend={backend} initialRole={hint.rol === "trabajador" ? "trabajador" : undefined} onDone={refreshProfile} />
+          <Auth
+            backend={backend}
+            initialRole={hint.rol === "trabajador" ? "trabajador" : hint.rol === "cliente" ? "cliente" : undefined}
+            initialMode={hint.modo === "ingreso" ? "ingreso" : "registro"}
+            onDone={refreshProfile}
+          />
         ) : tab === "pedir" ? (
           <NewRequest
             backend={backend}
@@ -143,7 +148,7 @@ export default function AppShell() {
             <button key={t.id} aria-current={tab === t.id ? "page" : undefined} onClick={() => setTab(t.id)}>
               {t.icon}
               {t.label}
-              {!!t.badge && <span className="badge">{t.badge}</span>}
+              {!!t.badge && <span className="count">{t.badge}</span>}
             </button>
           ))}
         </nav>

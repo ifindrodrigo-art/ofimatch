@@ -17,7 +17,18 @@ export type Profile = {
   rating_sum: number;
   rating_count: number;
   jobs_done: number;
+  price_from?: number | null;
+  work_label?: string | null;
   is_demo: boolean;
+};
+
+export type PortfolioItem = {
+  id: string;
+  profile_id: string;
+  path: string;
+  caption: string | null;
+  created_at: string;
+  url: string; // URL pública lista para <img>
 };
 
 export type Status = "pendiente" | "aceptada" | "en_camino" | "completada" | "rechazada" | "cancelada";
@@ -39,7 +50,7 @@ export type Request = {
   accepted_at: string | null;
   completed_at: string | null;
   client?: Pick<Profile, "full_name" | "district"> | null;
-  worker?: Pick<Profile, "full_name" | "oficio" | "rating_sum" | "rating_count" | "is_demo"> | null;
+  worker?: Pick<Profile, "full_name" | "oficio" | "rating_sum" | "rating_count" | "is_demo" | "price_from"> | null;
 };
 
 export type Rating = {
@@ -76,6 +87,7 @@ export type SignUpInput = {
   oficio?: OficioId;
   years_exp?: number;
   bio?: string;
+  price_from?: number;
 };
 
 export type NewRequest = {
@@ -94,8 +106,15 @@ export interface Backend {
   signUp(input: SignUpInput): Promise<{ needsConfirm: boolean }>;
   signIn(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
-  listWorkers(oficio: OficioId): Promise<Profile[]>;
-  updateMyProfile(patch: Partial<Pick<Profile, "available" | "district" | "lat" | "lng" | "bio" | "full_name">>): Promise<void>;
+  listWorkers(oficio?: OficioId): Promise<Profile[]>;
+  updateMyProfile(
+    patch: Partial<Pick<Profile, "available" | "district" | "lat" | "lng" | "bio" | "full_name" | "price_from" | "work_label">>,
+  ): Promise<void>;
+  /** Primera foto de portafolio de cada perfil (para tarjetas). */
+  covers(profileIds: string[]): Promise<Record<string, string>>;
+  portfolioOf(profileId: string): Promise<PortfolioItem[]>;
+  addPortfolio(file: Blob, caption: string): Promise<void>;
+  removePortfolio(item: PortfolioItem): Promise<void>;
   createRequest(input: NewRequest): Promise<Request>;
   myRequests(): Promise<Request[]>;
   updateRequest(id: string, patch: Partial<Pick<Request, "status" | "worker_id" | "amount" | "match_score">>): Promise<void>;

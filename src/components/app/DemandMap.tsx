@@ -39,9 +39,9 @@ export default function DemandMap({ backend, profile, onMoved }: { backend: Back
         const sel = r.district === selected;
         L.circleMarker([r.lat, r.lng], {
           radius: 7 + (r.total / max) * 22,
-          color: sel ? "#13295a" : "#e0007a",
+          color: sel ? "#0F172A" : "#2563EB",
           weight: sel ? 3 : 1.5,
-          fillColor: "#e0007a",
+          fillColor: "#2563EB",
           fillOpacity: 0.18 + (r.total / max) * 0.45,
         })
           .bindTooltip(`${r.district}: ${r.total} pedidos`)
@@ -50,7 +50,7 @@ export default function DemandMap({ backend, profile, onMoved }: { backend: Back
       });
       const home = districtByName(profile.district);
       if (home)
-        L.circleMarker([home.lat, home.lng], { radius: 6, color: "#fff", weight: 2, fillColor: "#13295a", fillOpacity: 1 })
+        L.circleMarker([home.lat, home.lng], { radius: 7, color: "#fff", weight: 2, fillColor: "#06B6D4", fillOpacity: 1 })
           .bindTooltip("Tu zona actual")
           .addTo(layer);
     })();
@@ -96,9 +96,9 @@ export default function DemandMap({ backend, profile, onMoved }: { backend: Back
           Pedidos de {oficioById(oficio)!.plural.toLowerCase()} en los últimos 60 días. Toca una zona para trabajar ahí.
         </p>
       </div>
-      <div ref={mapEl} className="map" role="img" aria-label="Mapa de demanda por distrito" />
+      <div ref={mapEl} className="map-box" role="img" aria-label="Mapa de demanda por distrito" />
       {sel && (
-        <div className="card">
+        <div className="panel">
           <h3>{sel.district}</h3>
           <p className="muted">
             {sel.total} pedidos. Se pide más {franja[best!]}.
@@ -117,7 +117,11 @@ export default function DemandMap({ backend, profile, onMoved }: { backend: Back
           )}
         </div>
       )}
-      {msg && <p className="demo-note">{msg}</p>}
+      {msg && (
+        <p className="demo-note" role="status">
+          {msg}
+        </p>
+      )}
       {!rows && <p className="muted">Cargando demanda…</p>}
       <ul className="zones">
         {rows?.slice(0, 10).map((r) => (

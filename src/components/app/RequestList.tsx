@@ -4,6 +4,7 @@ import { COMMISSION, URGENCIAS, districtByName, oficioById } from "@/lib/data";
 import { rankWorkers, type MatchResult } from "@/lib/match";
 import type { Backend, Profile, Request, Status } from "@/lib/types";
 import RateBox from "./RateBox";
+import { Icon } from "../site/Icons";
 
 const STATUS_LABEL: Record<Status, string> = {
   pendiente: "Esperando respuesta",
@@ -12,6 +13,15 @@ const STATUS_LABEL: Record<Status, string> = {
   completada: "Completada",
   rechazada: "Rechazada",
   cancelada: "Cancelada",
+};
+
+const STATUS_TONE: Record<Status, string> = {
+  pendiente: "wait",
+  aceptada: "go",
+  en_camino: "go",
+  completada: "done",
+  rechazada: "off",
+  cancelada: "off",
 };
 
 const fmtDate = (s: string) =>
@@ -59,7 +69,8 @@ export default function RequestList({
         </p>
       </div>
       {requests.length === 0 && (
-        <div className="card empty">
+        <div className="empty-app">
+          <Icon name="list" />
           <p>
             {isWorker
               ? "Todavía no tienes solicitudes. Mira el mapa de demanda para ubicarte donde más se pide tu oficio."
@@ -70,7 +81,7 @@ export default function RequestList({
       {active.map((r) => (
         <RequestCard key={r.id} backend={backend} profile={profile} r={r} refresh={refresh} onAccepted={setJustAccepted} />
       ))}
-      {done.length > 0 && <h2 style={{ fontSize: 18, marginTop: 8 }}>Historial</h2>}
+      {done.length > 0 && <h2 className="history-title">Historial</h2>}
       {done.map((r) => (
         <RequestCard key={r.id} backend={backend} profile={profile} r={r} refresh={refresh} onAccepted={setJustAccepted} />
       ))}
@@ -128,7 +139,7 @@ function RequestCard({
   const amt = Number(amount);
 
   return (
-    <article className="card">
+    <article className="req">
       <div className="req-head">
         <div>
           <h3>
@@ -141,13 +152,13 @@ function RequestCard({
             {r.match_score != null && <>, match {Math.round(r.match_score)}/100</>}
           </p>
         </div>
-        <span className={`status status-${r.status}`}>{STATUS_LABEL[r.status]}</span>
+        <span className={`status ${STATUS_TONE[r.status]}`}>{STATUS_LABEL[r.status]}</span>
       </div>
       <p className="req-desc">{r.description}</p>
 
       {phone && r.status !== "completada" && (
         <a className="btn whatsapp btn-block" href={`https://wa.me/51${phone}?text=${encodeURIComponent(`Hola ${other ?? ""}, te escribo por OfiMatch sobre: ${r.description}`)}`} target="_blank" rel="noopener noreferrer">
-          Escribir por WhatsApp a {other?.split(" ")[0]}
+          <Icon name="whatsapp" /> Escribir por WhatsApp a {other?.split(" ")[0]}
         </a>
       )}
 
@@ -156,7 +167,7 @@ function RequestCard({
           <button className="btn btn-primary" disabled={busy} onClick={() => act({ status: "aceptada" }, () => onAccepted({ ...r, status: "aceptada" }))}>
             Aceptar
           </button>
-          <button className="btn btn-ghost" disabled={busy} onClick={() => act({ status: "rechazada" })}>
+          <button className="btn btn-outline" disabled={busy} onClick={() => act({ status: "rechazada" })}>
             Rechazar
           </button>
         </div>
@@ -167,7 +178,7 @@ function RequestCard({
         </button>
       )}
       {canClose && !closing && (
-        <button className="btn btn-ghost" onClick={() => setClosing(true)}>
+        <button className="btn btn-outline" onClick={() => setClosing(true)}>
           Marcar trabajo como terminado
         </button>
       )}
@@ -182,7 +193,7 @@ function RequestCard({
             <button className="btn btn-primary" disabled={busy || !(amt > 0)} onClick={() => act({ status: "completada", amount: amt }, () => setClosing(false))}>
               Confirmar trabajo terminado
             </button>
-            <button className="btn btn-ghost" onClick={() => setClosing(false)}>
+            <button className="btn btn-outline" onClick={() => setClosing(false)}>
               Volver
             </button>
           </div>
@@ -202,7 +213,7 @@ function RequestCard({
             </button>
           )}
           {alts?.map((m) => (
-            <button key={m.worker.id} className="btn btn-ghost" disabled={busy} onClick={() => act({ worker_id: m.worker.id, status: "pendiente", match_score: Math.round(m.score) })}>
+            <button key={m.worker.id} className="btn btn-outline" disabled={busy} onClick={() => act({ worker_id: m.worker.id, status: "pendiente", match_score: Math.round(m.score) })}>
               Enviar a {m.worker.full_name} ({Math.round(m.score)}/100, {m.km.toFixed(1)} km)
             </button>
           ))}
@@ -251,7 +262,7 @@ function AcceptedScreen({ backend, request, onClose }: { backend: Backend; reque
   return (
     <div className="confirm">
       <div className="check" aria-hidden="true">
-        ✓
+        <Icon name="check" />
       </div>
       <h1 className="h-app">Aceptaste el trabajo</h1>
       <p>
@@ -261,10 +272,10 @@ function AcceptedScreen({ backend, request, onClose }: { backend: Backend; reque
       </p>
       {phone && (
         <a className="btn whatsapp btn-block" href={`https://wa.me/51${phone}?text=${encodeURIComponent(`Hola ${name}, soy tu técnico de OfiMatch. ¿A qué hora te viene bien?`)}`} target="_blank" rel="noopener noreferrer">
-          Escribir a {name.split(" ")[0]} por WhatsApp
+          <Icon name="whatsapp" /> Escribir a {name.split(" ")[0]} por WhatsApp
         </a>
       )}
-      <button className="btn btn-ghost btn-block" onClick={onClose}>
+      <button className="btn btn-outline btn-block" onClick={onClose}>
         Volver a mis solicitudes
       </button>
     </div>

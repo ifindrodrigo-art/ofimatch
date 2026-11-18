@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "northStar": "Marketplace de oficios claro y confiable: el técnico real es la unidad de diseño.",
+  "shadows": {
+    "tile": "0 0 1px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.06)",
+    "float": "0 24px 48px rgba(2,8,23,.38)",
+    "menu": "0 18px 40px rgba(15,23,42,.14)"
+  },
+  "motion": {
+    "ease": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "heroFloat": "7s ease-in-out infinite, pausable",
+    "pinPulse": "2.6s ease-out infinite",
+    "reducedMotion": "all animation off"
+  },
+  "breakpoints": { "xl": "1240px", "lg": "1100px", "md": "1000px", "sm": "900px", "xs": "720px", "xxs": "520px" },
+  "rules": [
+    "Una sola acción primaria azul por bloque.",
+    "Datos reales en tarjetas; nada de afirmaciones sin respaldo.",
+    "Lo futuro se marca como Próximamente."
+  ]
+}

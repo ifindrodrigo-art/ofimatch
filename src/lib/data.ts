@@ -1,24 +1,40 @@
 // Datos estáticos: oficios, distritos de Lima y Callao con coordenadas aproximadas.
 
-export type OficioId = "electricista" | "gasfitero" | "albanil" | "soldador";
+export type OficioId =
+  | "electricista"
+  | "gasfitero"
+  | "albanil"
+  | "soldador"
+  | "pintor"
+  | "carpintero"
+  | "cerrajero"
+  | "climatizacion"
+  | "drywall";
+
+export type IconId = "bolt" | "faucet" | "brick" | "weld" | "roller" | "hammer" | "key" | "ac" | "roof";
 
 export type Oficio = {
   id: OficioId;
-  singular: string;
+  area: string; // nombre del rubro: "Electricidad"
+  singular: string; // persona: "Electricista"
   plural: string;
   slug: string; // URL de la página pública
-  color: string;
+  icon: IconId;
+  tint: string;
   trabajos: string[];
   pregunta: string;
+  keywords: string;
 };
 
 export const OFICIOS: Oficio[] = [
   {
     id: "electricista",
+    area: "Electricidad",
     singular: "Electricista",
     plural: "Electricistas",
     slug: "electricistas-en-lima",
-    color: "var(--amarillo)",
+    icon: "bolt",
+    tint: "var(--tint-1)",
     trabajos: [
       "Cortocircuitos y apagones en casa",
       "Instalación de tomacorrientes, interruptores y luminarias",
@@ -27,13 +43,16 @@ export const OFICIOS: Oficio[] = [
       "Instalación de terma eléctrica",
     ],
     pregunta: "¿Cuánto cobra un electricista a domicilio en Lima?",
+    keywords: "luz tomacorriente enchufe tablero llave termica pozo tierra cableado luminaria cortocircuito",
   },
   {
     id: "gasfitero",
+    area: "Gasfitería",
     singular: "Gasfitero",
     plural: "Gasfiteros",
     slug: "gasfiteros-en-lima",
-    color: "var(--turquesa)",
+    icon: "faucet",
+    tint: "var(--tint-2)",
     trabajos: [
       "Fugas de agua y goteras en tuberías",
       "Desatoro de lavaderos, inodoros y desagües",
@@ -42,28 +61,34 @@ export const OFICIOS: Oficio[] = [
       "Instalación de tanques y bombas de agua",
     ],
     pregunta: "¿Cuánto cobra un gasfitero por un desatoro en Lima?",
+    keywords: "fuga agua terma caño grifo griferia desague desatoro inodoro baño tuberia plomero tanque bomba",
   },
   {
     id: "albanil",
+    area: "Albañilería",
     singular: "Albañil",
     plural: "Albañiles",
     slug: "albaniles-en-lima",
-    color: "var(--fucsia)",
+    icon: "brick",
+    tint: "var(--tint-3)",
     trabajos: [
       "Ampliaciones y construcción de segundo piso",
       "Tarrajeo, enchapes y cerámicos",
       "Remodelación de baños y cocinas",
       "Pisos, contrapisos y veredas",
-      "Drywall y acabados",
+      "Muros, columnas y losas",
     ],
     pregunta: "¿Cuánto cobra un albañil por día en Lima?",
+    keywords: "enchape mayolica porcelanato tarrajeo pared construccion ampliacion cemento piso losa muro",
   },
   {
     id: "soldador",
+    area: "Soldadura",
     singular: "Soldador",
     plural: "Soldadores",
     slug: "soldadores-en-lima",
-    color: "var(--overol-300)",
+    icon: "weld",
+    tint: "var(--tint-4)",
     trabajos: [
       "Puertas y rejas metálicas a medida",
       "Techos y estructuras metálicas",
@@ -72,6 +97,97 @@ export const OFICIOS: Oficio[] = [
       "Soldadura MIG, TIG y por arco",
     ],
     pregunta: "¿Cuánto cuesta una puerta metálica hecha por un soldador en Lima?",
+    keywords: "reja puerta metal metalica estructura soldar soldadura fierro garaje baranda techo",
+  },
+  {
+    id: "pintor",
+    area: "Pintura",
+    singular: "Pintor",
+    plural: "Pintores",
+    slug: "pintores-en-lima",
+    icon: "roller",
+    tint: "var(--tint-6)",
+    trabajos: [
+      "Pintura de interiores: salas, dormitorios y cocinas",
+      "Pintura de fachadas",
+      "Empaste y resane de paredes",
+      "Pintura de departamentos completos",
+      "Barnizado de puertas y muebles",
+    ],
+    pregunta: "¿Cuánto cuesta pintar un departamento en Lima?",
+    keywords: "pintar pintura pared fachada empaste resane interiores departamento barniz",
+  },
+  {
+    id: "carpintero",
+    area: "Carpintería",
+    singular: "Carpintero",
+    plural: "Carpinteros",
+    slug: "carpinteros-en-lima",
+    icon: "hammer",
+    tint: "var(--tint-4)",
+    trabajos: [
+      "Muebles de melamina a medida",
+      "Closets y muebles de cocina",
+      "Puertas de madera y contraplacadas",
+      "Reparación de muebles",
+      "Escritorios y repisas",
+    ],
+    pregunta: "¿Cuánto cuesta un closet de melamina a medida en Lima?",
+    keywords: "melamina mueble closet cocina madera repisa puerta escritorio carpinteria",
+  },
+  {
+    id: "cerrajero",
+    area: "Cerrajería",
+    singular: "Cerrajero",
+    plural: "Cerrajeros",
+    slug: "cerrajeros-en-lima",
+    icon: "key",
+    tint: "var(--tint-1)",
+    trabajos: [
+      "Apertura de puertas sin dañar la chapa",
+      "Cambio de chapas y cerraduras de seguridad",
+      "Duplicado de llaves",
+      "Apertura de autos",
+      "Instalación de cerrojos",
+    ],
+    pregunta: "¿Cuánto cobra un cerrajero por abrir una puerta en Lima?",
+    keywords: "chapa llave puerta cerradura abrir cerrojo urgencia cerrajero duplicado",
+  },
+  {
+    id: "climatizacion",
+    area: "Climatización",
+    singular: "Técnico en climatización",
+    plural: "Técnicos en climatización",
+    slug: "tecnicos-de-aire-acondicionado-en-lima",
+    icon: "ac",
+    tint: "var(--tint-2)",
+    trabajos: [
+      "Instalación de aire acondicionado split",
+      "Mantenimiento y limpieza de split",
+      "Carga de gas refrigerante",
+      "Reparación de equipos de aire",
+      "Ventilación para negocios",
+    ],
+    pregunta: "¿Cuánto cuesta el mantenimiento de un aire acondicionado en Lima?",
+    keywords: "aire acondicionado split climatizacion ventilacion mantenimiento refrigerante gas",
+  },
+  {
+    id: "drywall",
+    area: "Drywall y techos",
+    singular: "Instalador de drywall",
+    plural: "Instaladores de drywall",
+    slug: "instaladores-de-drywall-en-lima",
+    icon: "roof",
+    tint: "var(--tint-5)",
+    trabajos: [
+      "Falso techo y cielo raso",
+      "Divisiones de ambientes",
+      "Muebles de drywall",
+      "Reparación de goteras en techos",
+      "Acabados y empaste de drywall",
+    ],
+    pregunta: "¿Cuánto cuesta instalar drywall por metro cuadrado en Lima?",
+    keywords: "drywall falso techo cielo raso division gotera techo baldosa tabiqueria",
   },
 ];
 
